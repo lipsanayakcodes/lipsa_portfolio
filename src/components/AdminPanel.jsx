@@ -96,8 +96,9 @@ function LoginScreen({ onLogin }) {
   async function submit(e) {
     e.preventDefault()
     setBusy(true); setError('')
+    const apiBase = import.meta.env.VITE_API_URL || ''
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch(`${apiBase}/api/login`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       })
@@ -262,7 +263,8 @@ export default function AdminPanel() {
 
   /* check session */
   useEffect(() => {
-    fetch('/api/session')
+    const apiBase = import.meta.env.VITE_API_URL || ''
+    fetch(`${apiBase}/api/session`)
       .then(r => r.json())
       .then(d => setAuthenticated(Boolean(d.authenticated)))
       .catch(() => setError('Could not connect to the portfolio server.'))
@@ -272,7 +274,8 @@ export default function AdminPanel() {
   /* load fresh content after login */
   useEffect(() => {
     if (!authenticated) return
-    fetch('/api/content')
+    const apiBase = import.meta.env.VITE_API_URL || ''
+    fetch(`${apiBase}/api/content`)
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(data => {
         if (data) { setContent(data); setDraft(clone(data)) }
@@ -304,8 +307,9 @@ export default function AdminPanel() {
 
   async function save() {
     setBusy(true); setError(''); setMessage('')
+    const apiBase = import.meta.env.VITE_API_URL || ''
     try {
-      const res = await fetch('/api/content', {
+      const res = await fetch(`${apiBase}/api/content`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(draft),
@@ -321,7 +325,8 @@ export default function AdminPanel() {
   }
 
   async function logout() {
-    await fetch('/api/logout', { method: 'POST' }).catch(() => {})
+    const apiBase = import.meta.env.VITE_API_URL || ''
+    await fetch(`${apiBase}/api/logout`, { method: 'POST' }).catch(() => {})
     setAuthenticated(false)
     setDraft(clone(content))
   }

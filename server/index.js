@@ -106,6 +106,9 @@ function checkOrigin(req) {
     // In development allow any localhost origin (port may differ between
     // Vite dev server and the Node API server)
     if (!production && (origin.hostname === 'localhost' || origin.hostname === '127.0.0.1')) return true
+    // Allow Render-hosted frontend and any explicitly configured frontend URL
+    const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean)
+    if (allowedOrigins.includes(origin.origin)) return true
     return origin.host === req.headers.host
   } catch {
     return false
@@ -206,6 +209,15 @@ const server = createServer(async (req, res) => {
   }
 
   if (!checkOrigin(req)) return sendJson(res, 403, { error: 'Origin not allowed' })
+
+  // Add CORS headers for cross-origin requests (frontend on different Render domain)
+  if (req.headers.origin) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+    res.setHeader('Access-Control-Allow-Credentials', 'true')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  }
+  if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return }
 
   try {
     if (url.pathname === '/api/content' && req.method === 'GET') return sendJson(res, 200, await loadContent(), { 'Cache-Control': 'no-store' })

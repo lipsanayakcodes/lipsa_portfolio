@@ -7,7 +7,8 @@ export function ContentProvider({ children }) {
   const [content, setContent] = useState(DEFAULT_CONTENT)
 
   useEffect(() => {
-    fetch('/api/content')
+    const apiBase = import.meta.env.VITE_API_URL || ''
+    fetch(`${apiBase}/api/content`)
       .then(response => response.ok ? response.json() : null)
       .then(data => {
         if (data && Array.isArray(data.projects) && Array.isArray(data.skills) && Array.isArray(data.education) && Array.isArray(data.experience)) {
