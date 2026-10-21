@@ -1,0 +1,23 @@
+export const DEFAULT_CONTENT = {
+  projects: [
+    { emoji: '⛏️', bg: 'linear-gradient(135deg,#1a1a35,#0d0d1a)', category: 'Data / Python', name: 'Contact Info Extractor', desc: 'A Python-based data extraction and analysis tool that scrapes, processes, and visualizes data from various sources. Built to practice automation and data handling skills.', tags: ['Python', 'BeautifulSoup', 'Pandas', 'Matplotlib'], github: 'https://github.com/lipsanayakcodes/contact-info-extractor', demo: '' },
+    { emoji: '🧾', bg: 'linear-gradient(135deg,#1a2a1a,#0d1a0d)', category: 'Utility / Python', name: 'Payment Receipt Generator', desc: 'A Python application that generates professional payment receipts in PDF format. Users can enter transaction details and download a formatted receipt instantly.', tags: ['Python', 'ReportLab', 'Tkinter'], github: 'https://github.com/lipsanayakcodes/payment-receipt-generator', demo: '' },
+  ],
+  skills: [
+    { name: 'HTML', icon: 'fab fa-html5', color: '#e34f26', pct: 90, desc: 'Semantic markup, accessibility, page structure' },
+    { name: 'CSS', icon: 'fab fa-css3-alt', color: '#1572b6', pct: 85, desc: 'Flexbox, Grid, responsive layouts, animations' },
+    { name: 'JavaScript', icon: 'fab fa-js', color: '#f7df1e', pct: 75, desc: 'ES6+, DOM manipulation, async programming' },
+    { name: 'React', icon: 'fab fa-react', color: '#61dafb', pct: 70, desc: 'Components, hooks, state management, JSX' },
+    { name: 'Node.js', icon: 'fab fa-node-js', color: '#3c873a', pct: 60, desc: 'Server-side JS, REST APIs, npm ecosystem' },
+    { name: 'Python', icon: 'fab fa-python', color: '#3776ab', pct: 85, desc: 'Scripting, automation, PDF generation' },
+    { name: 'SQL Server', icon: 'fas fa-database', color: '#a855f7', pct: 60, desc: 'Relational databases, queries, basic schema design' },
+  ],
+  education: [
+    { icon: '🎓', label: 'CURRENT COURSE', degree: 'Bachelor of Computer Applications (BCA)', school: 'Ravenshaw University', location: 'Kataka, Odisha', year: '2024 – 2027', desc: 'A three-year undergraduate programme covering computer science fundamentals, programming, databases, web development, and software engineering principles.', tags: ['Computer Science', 'Web Development', 'Databases', 'Programming'] },
+    { icon: '🏫', label: 'SCHOOLING', degree: 'Higher Secondary (12th)', school: 'SVM Higher Secondary School', location: 'Jagatsinghpur, Odisha', year: '2022 – 2024', desc: 'Completed higher secondary education with a focus on science and mathematics. Developed a strong interest in Computer Science.', tags: ['Science', 'Mathematics', 'Computer Science'] },
+  ],
+  experience: [
+    { logo: '/skillnexis.png', logoFallback: 'SN', company: 'SkillNexis', companyDesc: 'Ed-tech & software training company', role: 'Python Developer Intern', period: '02 Sep 2026 – 14 Oct 2026', type: 'Internship', desc: 'Completed a focused Python development internship at SkillNexis, where I applied Python programming to solve real-world tasks. Worked on scripting, automation, and data handling while building on best practices for clean, maintainable code.', highlights: ['Built the Payment Receipt Generator using Python and ReportLab', 'Wrote automation scripts for data processing tasks', 'Collaborated with the team on code reviews and best practices', 'Improved skills in Python, file handling, and PDF generation'], tags: ['Python', 'ReportLab', 'Tkinter', 'Automation', 'Git'] },
+    { logo: '/ibuzz.png', logoFallback: 'iB', company: 'iBuzz', companyDesc: 'Next-gen digital transformation company', role: 'Web Development Intern', period: '01 Sep 2024 – Present', type: 'Internship', desc: 'Working as a Web Development Intern at iBuzz, contributing to frontend development tasks and real-world web projects using modern technologies.', highlights: ['Developing responsive web pages using HTML, CSS and JavaScript', 'Working with React for building dynamic UI components', 'Collaborating with the team on design implementation and bug fixes', 'Gaining hands-on experience in professional web development workflows'], tags: ['HTML', 'CSS', 'JavaScript', 'React'] },
+  ],
+}
