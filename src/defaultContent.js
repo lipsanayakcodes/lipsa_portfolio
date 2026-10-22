@@ -1,6 +1,6 @@
 export const DEFAULT_CONTENT = {
   projects: [
-    { emoji: '⛏️', bg: 'linear-gradient(135deg,#1a1a35,#0d0d1a)', category: 'Data / Python', name: 'Contact Info Extractor', desc: 'A Python-based data extraction and analysis tool that scrapes, processes, and visualizes data from various sources. Built to practice automation and data handling skills.', tags: ['Python', 'BeautifulSoup', 'Pandas', 'Matplotlib'], github: 'https://github.com/lipsanayakcodes/contact-info-extractor', demo: '' },
+    { emoji: '⛏️', bg: 'linear-gradient(135deg,#1a1a35,#0d0d1a)', category: 'Data / Python', name: 'Contact Info Extractor', desc: 'A Python-based web scraping tool that extracts email addresses and phone numbers from websites listed in a CSV file. Built using BeautifulSoup and Regular Expressions (Regex) to automate contact information collection and practice web scraping and data processing skills.', tags: ['Python', 'BeautifulSoup', 'Pandas', 'Matplotlib'], github: 'https://github.com/lipsanayakcodes/contact-info-extractor', demo: '' },
     { emoji: '🧾', bg: 'linear-gradient(135deg,#1a2a1a,#0d1a0d)', category: 'Utility / Python', name: 'Payment Receipt Generator', desc: 'A Python application that generates professional payment receipts in PDF format. Users can enter transaction details and download a formatted receipt instantly.', tags: ['Python', 'ReportLab', 'Tkinter'], github: 'https://github.com/lipsanayakcodes/payment-receipt-generator', demo: '' },
   ],
   skills: [

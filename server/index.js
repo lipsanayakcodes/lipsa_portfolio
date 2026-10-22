@@ -1,10 +1,12 @@
 import { createServer } from 'node:http'
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, access, rename as fsRename, unlink } from 'node:fs/promises'
 import { createReadStream } from 'node:fs'
 import { extname, resolve, sep } from 'node:path'
 import { timingSafeEqual, randomBytes, createHmac } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_CONTENT } from '../src/defaultContent.js'
+
+const MAX_RESUME_SIZE = 10 * 1024 * 1024 // 10 MB
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)))
 const dataDir = resolve(root, 'server', 'data')
@@ -68,10 +70,11 @@ function readBody(req) {
       if (tooLarge) return
       size += chunk.length
       if (size > MAX_BODY) {
-        tooLarge = true
-        reject(Object.assign(new Error('Request is too large'), { status: 413 }))
-        return
-      }
+          tooLarge = true
+          req.destroy()  // stop stream to prevent memory growth
+          reject(Object.assign(new Error('Request is too large'), { status: 413 }))
+          return
+        }
       body += chunk
     })
     req.on('end', () => {
@@ -89,6 +92,7 @@ function cookieValue(req, key) {
 
 function currentSession(req) {
   const sid = cookieValue(req, 'portfolio_session')
+  if (!sid) return null  // no cookie — skip HMAC computation entirely
   const key = sessionKey(sid)
   const session = sessions.get(key)
   if (!session || session.expiresAt < Date.now()) {
@@ -248,10 +252,123 @@ const server = createServer(async (req, res) => {
       if (!currentSession(req)) return sendJson(res, 401, { error: 'Please log in again' })
       const content = validateContent(await readBody(req))
       await writeFile(`${dataFile}.tmp`, `${JSON.stringify(content, null, 2)}\n`)
-      const { rename } = await import('node:fs/promises')
-      await rename(`${dataFile}.tmp`, dataFile)
+      await fsRename(`${dataFile}.tmp`, dataFile)
       return sendJson(res, 200, content)
     }
+
+    // ── Resume upload ────────────────────────────────────────────
+    if (url.pathname === '/api/resume' && req.method === 'POST') {
+      if (!currentSession(req)) return sendJson(res, 401, { error: 'Please log in again' })
+
+      const ct = req.headers['content-type'] || ''
+      if (!ct.includes('multipart/form-data')) {
+        return sendJson(res, 400, { error: 'Expected multipart/form-data' })
+      }
+
+      // Extract boundary from content-type header
+      const boundaryMatch = ct.match(/boundary=(?:"([^"]+)"|([^\s;]+))/)
+      if (!boundaryMatch) return sendJson(res, 400, { error: 'Missing multipart boundary' })
+      const boundary = boundaryMatch[1] ?? boundaryMatch[2]
+
+      // Stream the request body into a temp file, then validate & move
+      const destDir = resolve(root, 'public')
+      await mkdir(destDir, { recursive: true })
+      const tmpPath  = resolve(destDir, `resume-upload.tmp.${Date.now()}`)
+      const finalPath = resolve(destDir, 'lipsa-resume.pdf')
+
+      await new Promise((resolveUpload, rejectUpload) => {
+        const chunks = []
+        let size = 0
+
+        req.on('data', chunk => {
+          size += chunk.length
+          if (size > MAX_RESUME_SIZE) {
+            req.destroy()
+            rejectUpload(Object.assign(new Error('File too large (max 10 MB)'), { status: 413 }))
+            return
+          }
+          chunks.push(chunk)
+        })
+
+        req.on('error', rejectUpload)
+
+        req.on('end', () => {
+          try {
+            const buf = Buffer.concat(chunks)
+            const sep2 = Buffer.from(`--${boundary}`)
+
+            // Split on boundary lines and find the PDF part
+            const parts = []
+            let start = 0
+            while (start < buf.length) {
+              const idx = buf.indexOf(sep2, start)
+              if (idx === -1) break
+              const end = idx
+              if (start > 0) parts.push(buf.slice(start, end))
+              start = idx + sep2.length
+              // skip \r\n after boundary
+              if (buf[start] === 0x0d && buf[start + 1] === 0x0a) start += 2
+              else if (buf[start] === 0x0a) start += 1
+            }
+
+            let pdfBuf = null
+            for (const part of parts) {
+              // find double CRLF separating headers from body
+              const headerEnd = part.indexOf('\r\n\r\n')
+              if (headerEnd === -1) continue
+              const headers = part.slice(0, headerEnd).toString()
+              // strip trailing \r\n from body
+              let body = part.slice(headerEnd + 4)
+              if (body[body.length - 2] === 0x0d && body[body.length - 1] === 0x0a) {
+                body = body.slice(0, -2)
+              }
+              if (
+                headers.toLowerCase().includes('name="resume"') &&
+                (headers.toLowerCase().includes('application/pdf') || headers.toLowerCase().includes('.pdf'))
+              ) {
+                pdfBuf = body
+                break
+              }
+            }
+
+            if (!pdfBuf) {
+              // fallback: accept any part if only one was sent
+              for (const part of parts) {
+                const headerEnd = part.indexOf('\r\n\r\n')
+                if (headerEnd === -1) continue
+                let body = part.slice(headerEnd + 4)
+                if (body[body.length - 2] === 0x0d && body[body.length - 1] === 0x0a) body = body.slice(0, -2)
+                if (body.length > 4) { pdfBuf = body; break }
+              }
+            }
+
+            if (!pdfBuf || pdfBuf.length < 5) {
+              return rejectUpload(Object.assign(new Error('No PDF file found in upload'), { status: 400 }))
+            }
+
+            // Basic PDF magic-byte check
+            if (pdfBuf.slice(0, 4).toString() !== '%PDF') {
+              return rejectUpload(Object.assign(new Error('Uploaded file is not a valid PDF'), { status: 400 }))
+            }
+
+            writeFile(tmpPath, pdfBuf)
+              .then(() => fsRename(tmpPath, finalPath).catch(async () => {
+                // Windows may lock the destination file (open in a PDF viewer / browser tab).
+                // Fall back to writing directly over the destination, then clean up tmp.
+                await writeFile(finalPath, pdfBuf)
+                try { await unlink(tmpPath) } catch { /* ignore cleanup error */ }
+              }))
+              .then(() => resolveUpload())
+              .catch(rejectUpload)
+          } catch (err) {
+            rejectUpload(err)
+          }
+        })
+      })
+
+      return sendJson(res, 200, { message: 'Resume updated successfully' })
+    }
+
     return sendJson(res, 404, { error: 'Not found' })
   } catch (error) {
     if (!res.headersSent) sendJson(res, error.status || 500, { error: error.status ? error.message : 'Server error' })
@@ -277,11 +394,12 @@ function listen(port) {
 }
 listen(requestedPort)
 
-for (const timer of [setInterval(() => {
+const cleanupTimer = setInterval(() => {
   const now = Date.now()
   for (const [sid, session] of sessions) if (session.expiresAt < now) sessions.delete(sid)
   for (const [ip, attempt] of loginAttempts) if (now - attempt.started > 15 * 60 * 1000) loginAttempts.delete(ip)
-}, 60 * 1000)]) timer.unref()
+}, 60 * 1000)
+cleanupTimer.unref()
 
 process.on('SIGINT', async () => { await vite?.close(); server.close(() => process.exit(0)) })
 process.on('SIGTERM', async () => { await vite?.close(); server.close(() => process.exit(0)) })
