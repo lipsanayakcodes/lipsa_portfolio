@@ -1,26 +1,53 @@
 import React from 'react'
 
+const navLinks = ['Home', 'About', 'Projects', 'Experience', 'Education', 'Contact']
+
+const socials = [
+  { icon: 'fab fa-linkedin-in', href: 'https://www.linkedin.com/in/lipsa-nayak-dev', label: 'LinkedIn' },
+  { icon: 'fab fa-github',      href: 'https://github.com/lipsanayakcodes',          label: 'GitHub' },
+  { icon: 'fas fa-envelope',    href: 'mailto:lipsanayak7855@gmail.com',              label: 'Email' },
+]
+
 export default function Footer() {
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+  const scrollTo = (id) => {
+    const el = document.getElementById(id.toLowerCase())
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  }
 
   return (
     <footer className="footer">
       <div className="container">
-        <div className="footer-inner">
 
-          {/* Left — branding */}
-          <div className="footer-left">
-            <h2 className="footer-heading">Lipsa Nayak</h2>
-            <p className="footer-sub">© {new Date().getFullYear()}Have a question or an idea? I'd love to hear from you. Let's connect and share our ideas!
-</p>
-          </div>
-
-          {/* Right — back to top */}
-          <button className="footer-back-top" onClick={scrollTop} aria-label="Back to top">
-            <i className="fas fa-arrow-up"></i>
-          </button>
-
+        {/* Top — name + tagline */}
+        <div className="footer-top">
+          <h2 className="footer-logo">Lipsa Nayak</h2>
+          <p className="footer-tagline">BCA Student &amp; Aspiring Web Developer</p>
         </div>
+
+        {/* Middle — nav links */}
+        <nav className="footer-nav" aria-label="Footer navigation">
+          {navLinks.map(l => (
+            <button key={l} className="footer-nav-link" onClick={() => scrollTo(l)}>
+              {l}
+            </button>
+          ))}
+        </nav>
+
+        {/* Social icons */}
+        <div className="footer-socials">
+          {socials.map(s => (
+            <a key={s.label} href={s.href}
+              target={s.href.startsWith('http') ? '_blank' : undefined}
+              rel={s.href.startsWith('http') ? 'noreferrer' : undefined}
+              className="footer-social-btn" aria-label={s.label}>
+              <i className={s.icon}></i>
+            </a>
+          ))}
+        </div>
+
+        {/* Divider */}
+        <div className="footer-divider" />
+
       </div>
     </footer>
   )

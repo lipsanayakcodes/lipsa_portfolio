@@ -6,25 +6,17 @@
       "category": "Data / Python",
       "name": "Contact Info Extractor",
       "desc": "A Python-based web scraping tool that extracts email addresses and phone numbers from websites listed in a CSV file. Built using BeautifulSoup and Regular Expressions (Regex) to automate contact information collection and practice web scraping and data processing skills.",
-      "tags": [
-        "Python",
-        "BeautifulSoup",
-        "Pandas",
-        "Matplotlib"
-      ],
+      "tags": ["Python", "BeautifulSoup and Regex", "CSV"],
       "github": "https://github.com/lipsanayakcodes/contact-info-extractor",
       "demo": ""
     },
     {
       "emoji": "🧾",
       "bg": "linear-gradient(135deg,#1a2a1a,#0d1a0d)",
-      "category": "Python",
+      "category": "Utility / Python",
       "name": "Payment Receipt Generator",
-      "desc": "A Python application that generates professional payment receipts in PDF format. Users can enter transaction details and download a formatted receipt instantly.",
-      "tags": [
-        "Python",
-        "ReportLab"
-      ],
+      "desc": "A Python-based billing application that generates professional PDF payment receipts with itemized billing, automatic subtotal, discount, GST, and grand total calculations. Built using ReportLab to simplify receipt generation for stores and e-commerce businesses.",
+      "tags": ["Python", "ReportLab"],
       "github": "https://github.com/lipsanayakcodes/payment-receipt-generator",
       "demo": ""
     }
