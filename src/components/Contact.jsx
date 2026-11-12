@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import emailjs from '@emailjs/browser'
 
 export default function Contact() {
-  const [form, setForm]           = useState({ name: '', email: '', subject: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [errors, setErrors]       = useState({})
   const [sent, setSent]           = useState(false)
   const [sendError, setSendError] = useState('')
@@ -32,11 +32,11 @@ export default function Contact() {
       await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID,
         import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-        { from_name: form.name, from_email: form.email, subject: form.subject || `Message from ${form.name}`, message: form.message, to_email: 'lipsanayak7855@gmail.com' },
+        { from_name: form.name, from_email: form.email, subject: `Message from ${form.name}`, message: form.message, to_email: 'lipsanayak7855@gmail.com' },
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       )
       setSent(true)
-      setForm({ name: '', email: '', subject: '', message: '' })
+      setForm({ name: '', email: '', message: '' })
     } catch (err) {
       console.error('EmailJS error:', err)
       setSendError('Something went wrong. Please try again or email me directly.')
@@ -54,8 +54,11 @@ export default function Contact() {
           <p className="section-sub">Let's have a chat...</p>
         </div>
 
-        {/* Form */}
+        {/* Form card */}
         <div className="ct-form-card animate-in">
+
+          <h3 className="ct-form-title">Contact Form</h3>
+
           {sent && (
             <div className="form-success">
               <i className="fas fa-check-circle"></i> Message sent! I'll get back to you soon.
@@ -66,37 +69,39 @@ export default function Contact() {
               <i className="fas fa-exclamation-circle"></i> {sendError}
             </div>
           )}
+
           <form onSubmit={handleSubmit} noValidate>
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input id="name" name="name" placeholder="Your name"
-                  value={form.name} onChange={handleChange} className={errors.name ? 'err' : ''} />
-                {errors.name && <span className="form-err">{errors.name}</span>}
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input id="email" name="email" type="email" placeholder="your@email.com"
-                  value={form.email} onChange={handleChange} className={errors.email ? 'err' : ''} />
-                {errors.email && <span className="form-err">{errors.email}</span>}
-              </div>
+
+            <div className="ct-field">
+              <label htmlFor="name">Full Name</label>
+              <input id="name" name="name" placeholder="Enter your name"
+                value={form.name} onChange={handleChange}
+                className={errors.name ? 'err' : ''} />
+              {errors.name && <span className="form-err">{errors.name}</span>}
             </div>
-            <div className="form-group">
-              <label htmlFor="subject">Subject</label>
-              <input id="subject" name="subject" placeholder="What's this about?"
-                value={form.subject} onChange={handleChange} />
+
+            <div className="ct-field">
+              <label htmlFor="email">Email address</label>
+              <input id="email" name="email" type="email" placeholder="Enter your email"
+                value={form.email} onChange={handleChange}
+                className={errors.email ? 'err' : ''} />
+              {errors.email && <span className="form-err">{errors.email}</span>}
             </div>
-            <div className="form-group">
-              <label htmlFor="message">Message</label>
-              <textarea id="message" name="message" placeholder="Your message..."
-                value={form.message} onChange={handleChange} className={errors.message ? 'err' : ''} />
+
+            <div className="ct-field">
+              <label htmlFor="message">Your message</label>
+              <textarea id="message" name="message" placeholder="Enter your message..."
+                rows={6} value={form.message} onChange={handleChange}
+                className={errors.message ? 'err' : ''} />
               {errors.message && <span className="form-err">{errors.message}</span>}
             </div>
-            <button type="submit" className="btn-submit" disabled={loading}>
+
+            <button type="submit" className="ct-submit-btn" disabled={loading}>
               {loading
                 ? <><i className="fas fa-spinner fa-spin"></i> Sending…</>
-                : <><i className="fas fa-paper-plane"></i> Send Message</>}
+                : 'Send Message'}
             </button>
+
           </form>
         </div>
 
