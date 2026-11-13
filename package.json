@@ -20,7 +20,7 @@
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0"
   },
-  "allowScripts": {
-    "esbuild": true
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
