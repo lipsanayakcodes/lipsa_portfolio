@@ -33,7 +33,7 @@ export default function Hero() {
           </p>
 
           <div className="hero-actions">
-            <a href="public/lipsa-resume.pdf" download className="btn btn-primary">
+            <a href="/lipsa-resume.pdf" download className="btn btn-primary">
               <i className="fas fa-download"></i> Download Resume
             </a>
             <button className="btn btn-outline" onClick={() => scrollTo('contact')}>
