@@ -387,7 +387,7 @@ function listen(port) {
     console.error(`Could not start the portfolio server on port ${port}: ${error.message}`)
     process.exit(1)
   })
-  server.listen(port, '127.0.0.1', () => {
+  server.listen(port, '0.0.0.0', () => {
     const actualPort = server.address().port
     console.log(`Portfolio server listening at http://localhost:${actualPort}${production ? '' : ' (development)'}`)
   })
